@@ -1,0 +1,3 @@
+rootProject.name = "RecyclerView"
+include ':0-empty'
+include ':1-basic-implementation'
