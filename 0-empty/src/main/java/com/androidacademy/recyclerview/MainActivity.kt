@@ -12,11 +12,11 @@ class MainActivity : AppCompatActivity() {
         setRecyclerView()
     }
 
-    private fun generateRandomStrings(length: Int = 1, repeat: Int = 10) : List<String> {
+    private fun generateRandomStrings(numStrings: Int = 10, length: Int = 1) : List<String> {
         val strings: MutableList<String> = mutableListOf()
         val allowedChars = ('A'..'Z')
 
-        repeat(repeat) {
+        repeat(numStrings) {
             strings.add(
                 (1..length)
                     .map { allowedChars.random() }
