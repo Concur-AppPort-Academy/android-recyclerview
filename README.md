@@ -1,4 +1,4 @@
-# Lists with RecyclervView
+# Lists with RecyclerView
 <img src="img/recyclerview_example.png" width="50%">
 
 ## Main components
