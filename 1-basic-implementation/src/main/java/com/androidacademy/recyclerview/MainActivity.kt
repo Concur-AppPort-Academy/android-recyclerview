@@ -76,7 +76,6 @@ class ItemAdapter(private val dataSet: MutableList<String>, private val onItemCl
 
     inner class ItemViewHolder(view: View, val onItemClicked: (Int) -> Unit): RecyclerView.ViewHolder(view) {
         private val textItem: TextView = view.findViewById(R.id.text_item)
-
         init {
             view.setOnClickListener {
                 onItemClicked(adapterPosition)
@@ -87,5 +86,4 @@ class ItemAdapter(private val dataSet: MutableList<String>, private val onItemCl
             textItem.text = dataSet[position]
         }
     }
-
 }
