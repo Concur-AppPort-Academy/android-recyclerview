@@ -6,13 +6,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import coil.transform.CircleCropTransformation
 
 class MainActivity : AppCompatActivity() {
+
+    lateinit var recyclerView: RecyclerView
+
+    private val imagePath = "https://picsum.photos/200"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -22,12 +30,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setRecyclerView() {
-        val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
+        recyclerView = findViewById(R.id.recycler_view)
         recyclerView.apply {
             setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(this@MainActivity)
-            adapter = ItemAdapter(mutableListOf(Recipe("Cake","This is a cake recipe",
-                listOf(),true,"Im the owner"))){ position->
+            layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
+            adapter = ItemAdapter(mutableListOf(generateRandomRecipe())){ position->
                 onItemClicked(position)
             }
         }
@@ -35,10 +42,16 @@ class MainActivity : AppCompatActivity() {
         val button = findViewById<Button>(R.id.addButton)
         button.setOnClickListener{
             val adapter = recyclerView.adapter as ItemAdapter
-            adapter.addItem(Recipe("Cake","This is a cake recipe",
-                listOf(),true,"Im the owner"))
+            adapter.addItem(generateRandomRecipe())
             adapter.notifyDataSetChanged()
         }
+    }
+
+    private fun generateRandomRecipe() : Recipe {
+        val id = recyclerView.adapter?.itemCount ?: 0
+
+        return Recipe("Cake $id","This is a cake recipe",
+            listOf(),true,"Im the owner", imagePath)
     }
 
     private fun onItemClicked(item: Int){
@@ -68,6 +81,7 @@ class ItemAdapter(private val dataSet: MutableList<Recipe>, private val onItemCl
         private val recipeDescription: TextView = view.findViewById(R.id.recipe_description)
         private val recipeOwner: TextView = view.findViewById(R.id.recipe_owner)
         private val recipeIsFavorite: ImageButton = view.findViewById(R.id.recipe_is_favorite)
+        private val recipeImage: ImageView = view.findViewById(R.id.recipe_image)
         init {
             view.setOnClickListener {
                 onItemClicked(adapterPosition)
@@ -79,6 +93,12 @@ class ItemAdapter(private val dataSet: MutableList<Recipe>, private val onItemCl
             recipeName.text = recipe.name
             recipeDescription.text = recipe.description
             recipeOwner.text = recipe.owner
+            recipeImage.load(recipe.imagePath){
+                crossfade(true)
+                transformations(CircleCropTransformation())
+                placeholder(R.drawable.ic_launcher_background)
+                error(R.drawable.ic_launcher_background)
+            }
             if(recipe.isFavorite) {
                 recipeIsFavorite.visibility= View.VISIBLE
             } else {
@@ -93,5 +113,6 @@ class Recipe(
     val description:String,
     val steps:List<String>,
     var isFavorite:Boolean,
-    val owner:String
+    val owner:String,
+    val imagePath: String? = null
 )
