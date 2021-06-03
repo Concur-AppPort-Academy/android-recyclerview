@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -20,26 +21,13 @@ class MainActivity : AppCompatActivity() {
         setRecyclerView()
     }
 
-    private fun generateRandomStrings(length: Int = 1, repeat: Int = 10) : MutableList<String> {
-        val strings: MutableList<String> = mutableListOf()
-        val allowedChars = ('A'..'Z')
-
-        repeat(repeat) {
-            strings.add(
-                (1..length)
-                    .map { allowedChars.random() }
-                    .joinToString("")
-            )
-        }
-        return strings
-    }
-
     private fun setRecyclerView() {
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
         recyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(this@MainActivity)
-            adapter = ItemAdapter(generateRandomStrings()){ position->
+            adapter = ItemAdapter(mutableListOf(Recipe("Cake","This is a cake recipe",
+                listOf(),true,"Im the owner"))){ position->
                 onItemClicked(position)
             }
         }
@@ -47,7 +35,8 @@ class MainActivity : AppCompatActivity() {
         val button = findViewById<Button>(R.id.addButton)
         button.setOnClickListener{
             val adapter = recyclerView.adapter as ItemAdapter
-            adapter.addItem("Random")
+            adapter.addItem(Recipe("Cake","This is a cake recipe",
+                listOf(),true,"Im the owner"))
             adapter.notifyDataSetChanged()
         }
     }
@@ -57,7 +46,7 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-class ItemAdapter(private val dataSet: MutableList<String>, private val onItemClicked: (Int) -> Unit): RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
+class ItemAdapter(private val dataSet: MutableList<Recipe>, private val onItemClicked: (Int) -> Unit): RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         val view =
@@ -70,12 +59,15 @@ class ItemAdapter(private val dataSet: MutableList<String>, private val onItemCl
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) = holder.bind(position)
     override fun getItemCount(): Int = dataSet.size
 
-    fun addItem(value: String, position: Int = 0){
+    fun addItem(value: Recipe, position: Int = 0){
         dataSet.add(position, value)
     }
 
     inner class ItemViewHolder(view: View, val onItemClicked: (Int) -> Unit): RecyclerView.ViewHolder(view) {
-        private val textItem: TextView = view.findViewById(R.id.text_item)
+        private val recipeName: TextView = view.findViewById(R.id.recipe_name)
+        private val recipeDescription: TextView = view.findViewById(R.id.recipe_description)
+        private val recipeOwner: TextView = view.findViewById(R.id.recipe_owner)
+        private val recipeIsFavorite: ImageButton = view.findViewById(R.id.recipe_is_favorite)
         init {
             view.setOnClickListener {
                 onItemClicked(adapterPosition)
@@ -83,7 +75,23 @@ class ItemAdapter(private val dataSet: MutableList<String>, private val onItemCl
         }
 
         fun bind(position: Int) {
-            textItem.text = dataSet[position]
+            val recipe = dataSet[position]
+            recipeName.text = recipe.name
+            recipeDescription.text = recipe.description
+            recipeOwner.text = recipe.owner
+            if(recipe.isFavorite) {
+                recipeIsFavorite.visibility= View.VISIBLE
+            } else {
+                recipeIsFavorite.visibility= View.GONE
+            }
         }
     }
 }
+
+class Recipe(
+    val name:String,
+    val description:String,
+    val steps:List<String>,
+    var isFavorite:Boolean,
+    val owner:String
+)
